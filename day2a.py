@@ -3,53 +3,57 @@ input = 'day2-input.txt'
 def generateReports():
     reports = []
     with open(input, 'r') as inputFile:
-        for report in inputFile.readlines():
+        for line in inputFile.readlines():
+            report = [int(level) for level in line.strip().split()]
             reports.append(report)
     return reports
 
-
 def safeReport(report):
-    if (isAscOrDesc(report)): # and safeNeighbors(report)):
+    if isAscOrDesc(report) and safeNeighbors(report):
         return True
-    else:
-        return False
+    return False
 
 def isAscOrDesc(report):
-    asc = report.split(' ')
-    prevLevel = 0
+    ascending = all(report[i] < report[i + 1] for i in range(len(report) - 1))
+    descending = all(report[i] > report[i + 1] for i in range(len(report) - 1))
 
-    print('asc:')
-    for level in asc:
-        print(level)
-        if int(level) < prevLevel:
-            return False
-        prevLevel = int(level)
-
-    prevLevel = 0
-
-    print('desc:')
-    for level in reversed(asc):
-        print(level)
-        if int(level) < prevLevel:
-            return False
-        prevLevel = int(level)
-
-    print('ascending or descending')
-    return True
+    return ascending or descending
 
 def safeNeighbors(report):
-    pass
-    #return True
+    for i, level in enumerate(report):
+        if i == 0:
+            if not safeNeighbor(level, report[i + 1]):
+                return False
+            continue
+
+        if i == len(report) - 1:
+            if not safeNeighbor(level, report[i - 1]):
+                return False
+            continue
+
+        leftNeighbor = report[i - 1]
+        rightNeighbor = report[i + 1]
+
+        if not safeNeighbor(level, leftNeighbor):
+            return False
+
+        if not safeNeighbor(level, rightNeighbor):
+            return False
+
+    return True
+
+def safeNeighbor(level, neighbor):
+    if not (1 <= abs(level - neighbor) <= 3):
+        return False
+    return True
+
 
 reports = generateReports()
-
-
 safeReportCount = 0
 
 for report in reports:
     if safeReport(report):
-       safeReportCount += 1
-    else:
-        print('not safe')
+        safeReportCount += 1
 
 print(safeReportCount)
+
